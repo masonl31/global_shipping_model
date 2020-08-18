@@ -1,51 +1,35 @@
 using JuMP
 using GLPK
-
-#customise years of model
-include("Years.jl")
-Y= length(Years)
-
-#includes types of ships
-include("ship_types.jl")
-S=length(Ship_types)
+using Plots
 
 #Data
+#Ship_types = ["oiltanker" "bulkcarrier" "generalcargo" "containership" "other"]
+Ship_types = ["generalcargo" "containership" "other"]
 
-Fuels = ["HFO" "LNG" "LSFO" "Methanol" "Biodiesel" "Ammonia" "Electricity" "Liquifiedmethane" "Hydrogen"]
-
-
-Ship_types = ["oiltanker" "bulkcarrier" "generalcargo" "containership" "other"]
 T = length(Ship_types)
 
-#emission limits
+include("Years.jl")
+
+Y = length(Years)
+
+
 include("emission_limit.jl")
-
-#shipping demands by type
-include("shipping_demands.jl")
+include("ship_demands.jl")
 
 
-#existing_fleet
+
+#ship information
+Ships =
+["MDO_D" "MDO_C" "MDO_T" "LNG_D" "LNG_C" "LNG_T" "AMM_D" "AMM_C" "AMM_T" "MET_D" "MET_C" "MET_T"]
+S = length(Ships)
+
 include("existing_fleet.jl")
-
-#ship investments
-include("ship_investments.jl")
-
-#ship_variable
-include("ship_variable.jl")
-
-
-#ship emissions/GJ
-include("ship_emissions.jl")
-
-#ship eff
-include("ship_efficiency.jl")
-
-#ship type relation
-include("ship_type_relation.jl")
-
-#max demand
-include("ship_maxdemand.jl")
-
+include("ship_inv.jl")
+include("ship_var.jl")
+include("ship_emission.jl")
+include("ship_eff.jl")
+include("ship_fuel_relation.jl")
+include("maxdemand.jl")
 
 #Model
 #Shipping_stock = Model(with_optimizer(Gurobi.Optimizer,MIPGap=0.0,TimeLimit=300))
@@ -59,13 +43,13 @@ Shipping_stock = Model(with_optimizer(GLPK.Optimizer, tm_lim = 60000, msg_lev = 
 
 
 #demand constraint forcing ships to use fuel
-@constraint(Shipping_stock, [t=1:T, y=1:Y], sum(shiptyperelation[t,s]*z[s,y]*ship_eff[s] for s=1:S) >= Ship_Demands[y,t])
+@constraint(Shipping_stock, [t=1:T, y=1:Y], sum(shipfuelrelation[t,s]*z[s,y]*ship_eff[s] for s=1:S) >= Ship_Demands[y,t])
 
 #ship stock in each year for each ship
 @constraint(Shipping_stock, [s=1:S, y=1:Y], x[s,y]+(y>1 ? q[s,y-1] : existing_fleet[s]) == q[s,y])
 
 #ship to fuel constraint
-@constraint(Shipping_stock, [t=1:T, y=1:Y],sum(q[s,y]*maxdemandpervessel[s]*shiptyperelation[t,s] for s=1:S) >= Ship_Demands[y,t])
+@constraint(Shipping_stock, [t=1:T, y=1:Y],sum(q[s,y]*maxdemandpervessel[s]*shipfuelrelation[t,s] for s=1:S) >= Ship_Demands[y,t])
 
 #only ships that have been invested in can supply the demand
 @constraint(Shipping_stock, [s=1:S, y=1:Y], z[s,y]*ship_eff[s] <= q[s,y]*maxdemandpervessel[s])
@@ -102,4 +86,5 @@ if termination_status(Shipping_stock) == MOI.OPTIMAL
 else
     println("No optimal solution available")
 end
+
 #************************************************************************

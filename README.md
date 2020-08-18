@@ -1,1 +1,0 @@
-# global_shipping_model
