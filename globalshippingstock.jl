@@ -24,64 +24,27 @@ include("emission_limit.jl")
 include("shipping_demands.jl")
 
 
-existing_fleet =
-#"MDO_D" "MDO_C" "MDO_T" "LNG_D" "LNG_C" "LNG_T" "AMM_D" "AMM_C" "AMM_T" "MET_D" "MET_C" "MET_T"
-[
-#4        7       5       2       1       1       0       0       0       0       0       0
-0        0       0       0       0       0       0       0       0       0       0       0
-]
+#existing_fleet
+include("existing_fleet.jl")
 
-ship_inv =
-#"MDO_D" "MDO_C" "MDO_T" "LNG_D" "LNG_C" "LNG_T" "AMM_D" "AMM_C" "AMM_T" "MET_D" "MET_C" "MET_T"
-[
-4       7       5       2       8       3       5       1       7       4       1       2   #inv costs
-]
+#ship investments
+include("ship_investments.jl")
 
-ship_var =
-#"MDO_D" "MDO_C" "MDO_T" "LNG_D" "LNG_C" "LNG_T" "AMM_D" "AMM_C" "AMM_T" "MET_D" "MET_C" "MET_T"
-[
-1        2       4       8       2       8       2       7       6       1       2       3   #var costs
-]
-
-#=
-ship_life =
-#"MDO_D" "MDO_C" "MDO_T" "LNG_D" "LNG_C" "LNG_T" "AMM_D" "AMM_C" "AMM_T" "MET_D" "MET_C" "MET_T"
-[
-20      20      10      20      15      25      20      25      10      10      20      25  #lifetime
-]
-=#
+#ship_variable
+include("ship_variable.jl")
 
 
-ship_emissions =
-#"MDO_D" "MDO_C" "MDO_T" "LNG_D" "LNG_C" "LNG_T" "AMM_D" "AMM_C" "AMM_T" "MET_D" "MET_C" "MET_T"
-[
-5        5       5       4       4       4       0       0       0       2       2       2
-] #emissions/GJ
+#ship emissions/GJ
+include("ship_emissions.jl")
 
+#ship eff
+include("ship_efficiency.jl")
 
-ship_eff =
-#"MDO_D" "MDO_C" "MDO_T" "LNG_D" "LNG_C" "LNG_T" "AMM_D" "AMM_C" "AMM_T" "MET_D" "MET_C" "MET_T"
-[
-5        5       5       4       4       4       1       1       1       2       2       2
-#1        2       4       8       2       8       2       7       6       1       2       3   #var costs
-] #Mton*km/GJ
+#ship type relation
+include("ship_type_relation.jl")
 
-shipfuelrelation =
-#"MDO_D" "MDO_C" "MDO_T" "LNG_D" "LNG_C" "LNG_T" "AMM_D" "AMM_C" "AMM_T" "MET_D" "MET_C" "MET_T"
-[
-1        0       0       1       0       0       1       0       0       1       0       0        #D
-0        1       0       0       1       0       0       1       0       0       1       0        #C
-0        0       1       0       0       1       0       0       1       0       0       1        #T
-]
-
-maxdemandpervessel =
-[
-#"MDO_D" "MDO_C" "MDO_T" "LNG_D" "LNG_C" "LNG_T" "AMM_D" "AMM_C" "AMM_T" "MET_D" "MET_C" "MET_T"
-5e3      5e3     5e3     5e3     5e3     5e3     5e3     5e3     5e3     5e3     5e3     5e3
-]
-
-
-
+#max demand
+include("ship_maxdemand.jl")
 
 
 #Model
@@ -96,13 +59,13 @@ Shipping_stock = Model(with_optimizer(GLPK.Optimizer, tm_lim = 60000, msg_lev = 
 
 
 #demand constraint forcing ships to use fuel
-@constraint(Shipping_stock, [t=1:T, y=1:Y], sum(shipfuelrelation[t,s]*z[s,y]*ship_eff[s] for s=1:S) >= Ship_Demands[y,t])
+@constraint(Shipping_stock, [t=1:T, y=1:Y], sum(shiptyperelation[t,s]*z[s,y]*ship_eff[s] for s=1:S) >= Ship_Demands[y,t])
 
 #ship stock in each year for each ship
 @constraint(Shipping_stock, [s=1:S, y=1:Y], x[s,y]+(y>1 ? q[s,y-1] : existing_fleet[s]) == q[s,y])
 
 #ship to fuel constraint
-@constraint(Shipping_stock, [t=1:T, y=1:Y],sum(q[s,y]*maxdemandpervessel[s]*shipfuelrelation[t,s] for s=1:S) >= Ship_Demands[y,t])
+@constraint(Shipping_stock, [t=1:T, y=1:Y],sum(q[s,y]*maxdemandpervessel[s]*shiptyperelation[t,s] for s=1:S) >= Ship_Demands[y,t])
 
 #only ships that have been invested in can supply the demand
 @constraint(Shipping_stock, [s=1:S, y=1:Y], z[s,y]*ship_eff[s] <= q[s,y]*maxdemandpervessel[s])
