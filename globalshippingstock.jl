@@ -1,38 +1,28 @@
 using JuMP
-using Gurobi
+using GLPK
+
+#customise years of model
+include("Years.jl")
+Y= length(Years)
+
+#includes types of ships
+include("ship_types.jl")
+S=length(Ship_types)
 
 #Data
-Fuels = ["MDO" "LNG" "Ammonia" "Methanol"]
-Ship_types = ["Dry bulk" "Container" "Tanker"]
+
+Fuels = ["HFO" "LNG" "LSFO" "Methanol" "Biodiesel" "Ammonia" "Electricity" "Liquifiedmethane" "Hydrogen"]
+
+
+Ship_types = ["oiltanker" "bulkcarrier" "generalcargo" "containership" "other"]
 T = length(Ship_types)
-Years = ["2020" "2021" "2022" "2023" "2024"]
-Y = length(Years)
 
+#emission limits
+include("emission_limit.jl")
 
-emission_limit =
-[
-7e5 #2020
-7e5 #2021
-7e5 #2022
-7e5 #2023
-7e5 #2024
-]
+#shipping demands by type
+include("shipping_demands.jl")
 
-Ship_Demands =
-#D  #C  #T
-[
-1e6 4e6 9e5 #2020
-1e6 4e6 9e5 #2021
-1e6 4e6 9e5 #2022
-1e6 4e6 9e5 #2023
-1e6 4e6 9e5 #2024
-] #Mtonkm
-
-
-#ship information
-Ships =
-["MDO_D" "MDO_C" "MDO_T" "LNG_D" "LNG_C" "LNG_T" "AMM_D" "AMM_C" "AMM_T" "MET_D" "MET_C" "MET_T"]
-S = length(Ships)
 
 existing_fleet =
 #"MDO_D" "MDO_C" "MDO_T" "LNG_D" "LNG_C" "LNG_T" "AMM_D" "AMM_C" "AMM_T" "MET_D" "MET_C" "MET_T"
@@ -95,8 +85,8 @@ maxdemandpervessel =
 
 
 #Model
-Shipping_stock = Model(with_optimizer(Gurobi.Optimizer,MIPGap=0.0,TimeLimit=300))
-
+#Shipping_stock = Model(with_optimizer(Gurobi.Optimizer,MIPGap=0.0,TimeLimit=300))
+Shipping_stock = Model(with_optimizer(GLPK.Optimizer, tm_lim = 60000, msg_lev = GLPK.OFF))
 #variables
 @variable(Shipping_stock, x[1:S,1:Y] >= 0) #ships bought per type and year
 @variable(Shipping_stock, q[1:S,1:Y] >= 0) #ship stock
