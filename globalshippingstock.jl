@@ -1,5 +1,6 @@
 using JuMP
-using GLPK
+#using GLPK
+using Gurobi
 using Plots
 
 #Data
@@ -32,10 +33,11 @@ include("ship_fuel_relation.jl")
 include("maxdemand.jl")
 
 #Model
-#Shipping_stock = Model(with_optimizer(Gurobi.Optimizer,MIPGap=0.0,TimeLimit=300))
-Shipping_stock = Model(with_optimizer(GLPK.Optimizer, tm_lim = 60000, msg_lev = GLPK.OFF))
+Shipping_stock = Model(with_optimizer(Gurobi.Optimizer,MIPGap=0.0,TimeLimit=300))
+#Shipping_stock = Model(with_optimizer(GLPK.Optimizer, tm_lim = 60000, msg_lev = GLPK.OFF))
+
 #variables
-@variable(Shipping_stock, x[1:S,1:Y] >= 0) #ships bought per type and year
+@variable(Shipping_stock, x[1:S,1:Y] >= 0) #number of ships bought per year
 @variable(Shipping_stock, q[1:S,1:Y] >= 0) #ship stock
 @variable(Shipping_stock, z[1:S,1:Y] >= 0) #fuel used per ship and per year
 
@@ -48,8 +50,9 @@ Shipping_stock = Model(with_optimizer(GLPK.Optimizer, tm_lim = 60000, msg_lev = 
 #ship stock in each year for each ship
 @constraint(Shipping_stock, [s=1:S, y=1:Y], x[s,y]+(y>1 ? q[s,y-1] : existing_fleet[s]) == q[s,y])
 
+#redundant
 #ship to fuel constraint
-@constraint(Shipping_stock, [t=1:T, y=1:Y],sum(q[s,y]*maxdemandpervessel[s]*shipfuelrelation[t,s] for s=1:S) >= Ship_Demands[y,t])
+#@constraint(Shipping_stock, [t=1:T, y=1:Y],sum(q[s,y]*maxdemandpervessel[s]*shipfuelrelation[t,s] for s=1:S) >= Ship_Demands[y,t])
 
 #only ships that have been invested in can supply the demand
 @constraint(Shipping_stock, [s=1:S, y=1:Y], z[s,y]*ship_eff[s] <= q[s,y]*maxdemandpervessel[s])
@@ -61,6 +64,10 @@ Shipping_stock = Model(with_optimizer(GLPK.Optimizer, tm_lim = 60000, msg_lev = 
 # solve
 optimize!(Shipping_stock)
 
+#primal_status(Shipping_stock)
+#dual_status(Shipping_stock)
+
+#=
 if termination_status(Shipping_stock) == MOI.OPTIMAL
     println("Optimal objective value: $(objective_value(Shipping_stock))")
     println("Number of ships built in each year")
@@ -86,5 +93,5 @@ if termination_status(Shipping_stock) == MOI.OPTIMAL
 else
     println("No optimal solution available")
 end
-
 #************************************************************************
+=#
