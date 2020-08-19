@@ -1,7 +1,10 @@
 using JuMP
 #using GLPK
 using Gurobi
-using Plots
+using CSV
+#using Tables
+using DataFrames
+#using Plots
 
 #Data
 #Ship_types = ["oiltanker" "bulkcarrier" "generalcargo" "containership" "other"]
@@ -20,8 +23,8 @@ include("ship_demands.jl")
 
 
 #ship information
-Ships =
-["MDO_D" "MDO_C" "MDO_T" "LNG_D" "LNG_C" "LNG_T" "AMM_D" "AMM_C" "AMM_T" "MET_D" "MET_C" "MET_T"]
+#Ships = ["MDO_D" "MDO_C" "MDO_T" "LNG_D" "LNG_C" "LNG_T" "AMM_D" "AMM_C" "AMM_T" "MET_D" "MET_C" "MET_T"]
+Ships = ["MDO_D", "MDO_C", "MDO_T", "LNG_D", "LNG_C", "LNG_T", "AMM_D", "AMM_C", "AMM_T", "MET_D", "MET_C", "MET_T"]
 S = length(Ships)
 
 include("existing_fleet.jl")
@@ -66,6 +69,22 @@ optimize!(Shipping_stock)
 
 #primal_status(Shipping_stock)
 #dual_status(Shipping_stock)
+
+#creates dataframes
+ships_bought = DataFrame(transpose(JuMP.value.(x)))
+stock = DataFrame(transpose(JuMP.value.(q)))
+fuel_use = DataFrame(transpose(JuMP.value.(z)))
+
+#adds headers
+rename!(ships_bought, Ships)
+rename!(stock, Ships)
+rename!(fuel_use, Ships)
+
+# write DataFrame out to CSV file
+CSV.write("ships_bought.csv", ships_bought)
+CSV.write("stock.csv", stock)
+CSV.write("fuel_use.csv", fuel_use)
+
 
 #=
 if termination_status(Shipping_stock) == MOI.OPTIMAL
