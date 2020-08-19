@@ -31,13 +31,15 @@ include("ship_emission.jl")
 include("ship_eff.jl")
 include("ship_fuel_relation.jl")
 include("maxdemand.jl")
+include("ship_lifetime.jl")
+
 
 #Model
 Shipping_stock = Model(with_optimizer(Gurobi.Optimizer,MIPGap=0.0,TimeLimit=300))
 
 #variables
-@variable(Shipping_stock, x[1:S,1:Y] >= 0) #number of ships bought per year
-@variable(Shipping_stock, q[1:S,1:Y] >= 0) #ship stock
+@variable(Shipping_stock, x[1:S,1:Y] >= 0, Int) #number of ships bought per year
+@variable(Shipping_stock, q[1:S,1:Y] >= 0, Int) #ship stock at end of year Y
 @variable(Shipping_stock, z[1:S,1:Y] >= 0) #fuel used per ship and per year
 
 @objective(Shipping_stock, Min, sum(ship_inv[y,s]*x[s,y] + ship_var[y,s]*z[s,y] + ship_fuel[y,s]*z[s,y] for s=1:S, y=1:Y))
@@ -47,8 +49,7 @@ Shipping_stock = Model(with_optimizer(Gurobi.Optimizer,MIPGap=0.0,TimeLimit=300)
 @constraint(Shipping_stock, [t=1:T, y=1:Y], sum(shipfuelrelation[t,s]*z[s,y]*ship_eff[s] for s=1:S) >= Ship_Demands[y,t])
 
 #ship stock in each year for each ship
-#@constraint(Shipping_stock, [s=1:S, y=1:Y], x[s,y] + preexisting_fleet[y,s] + (y>1 ? x[s,y-1] : 0)- (y>25 ? x[s,y-25] : 0) == q[s,y])
-@constraint(Shipping_stock, [s=1:S, y=1:Y], x[s,y] == q[s,y])
+@constraint(Shipping_stock, [s=1:S, y=1:Y], x[s,y] + preexisting_fleet[y,s] + (y>1 ? q[s,y-1] : 0) - (y>lifetime[s] ? x[s,y-lifetime[s]] : 0) == q[s,y])
 
 #only ships that have been invested in can supply the demand
 @constraint(Shipping_stock, [s=1:S, y=1:Y], z[s,y]*ship_eff[s] <= q[s,y]*maxdemandpervessel[s])
