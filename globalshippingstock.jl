@@ -8,8 +8,7 @@ using DataFrames
 
 #Data
 #Ship_types = ["oiltanker" "bulkcarrier" "generalcargo" "containership" "other"]
-Ship_types = ["generalcargo" "containership" "other"]
-
+Ship_types = ["generalcargo", "containership", "other"]
 T = length(Ship_types)
 
 include("Years.jl")
@@ -23,7 +22,6 @@ include("ship_demands.jl")
 
 
 #ship information
-#Ships = ["MDO_D" "MDO_C" "MDO_T" "LNG_D" "LNG_C" "LNG_T" "AMM_D" "AMM_C" "AMM_T" "MET_D" "MET_C" "MET_T"]
 Ships = ["MDO_D", "MDO_C", "MDO_T", "LNG_D", "LNG_C", "LNG_T", "AMM_D", "AMM_C", "AMM_T", "MET_D", "MET_C", "MET_T"]
 S = length(Ships)
 
@@ -51,7 +49,7 @@ Shipping_stock = Model(with_optimizer(Gurobi.Optimizer,MIPGap=0.0,TimeLimit=300)
 @constraint(Shipping_stock, [t=1:T, y=1:Y], sum(shipfuelrelation[t,s]*z[s,y]*ship_eff[s] for s=1:S) >= Ship_Demands[y,t])
 
 #ship stock in each year for each ship
-@constraint(Shipping_stock, [s=1:S, y=1:Y], x[s,y]+(y>1 ? q[s,y-1] : existing_fleet[s]) == q[s,y])
+@constraint(Shipping_stock, [s=1:S, y=1:Y], x[s,y] + preexisting_fleet[y,s] == q[s,y])
 
 #redundant
 #ship to fuel constraint
@@ -66,6 +64,11 @@ Shipping_stock = Model(with_optimizer(Gurobi.Optimizer,MIPGap=0.0,TimeLimit=300)
 
 # solve
 optimize!(Shipping_stock)
+
+
+
+#-------------------------------------------------------
+#OUTPUTS
 
 #primal_status(Shipping_stock)
 #dual_status(Shipping_stock)
