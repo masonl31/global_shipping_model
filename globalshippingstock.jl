@@ -5,8 +5,7 @@ using DataFrames
 
 
 #Data
-#Ship_types = ["oiltanker" "bulkcarrier" "generalcargo" "containership" "other"]
-Ship_types = ["generalcargo", "containership", "other"]
+Ship_types = ["oiltanker" "bulkcarrier" "generalcargo" "containership" "other"]
 T = length(Ship_types)
 
 include("Years.jl")
