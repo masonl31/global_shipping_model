@@ -83,9 +83,9 @@ rename!(stock, Ships)
 rename!(fuel_use, Ships)
 
 # write DataFrame out to CSV file
-CSV.write("ships_bought.csv", ships_bought)
-CSV.write("stock.csv", stock)
-CSV.write("fuel_use.csv", fuel_use)
+CSV.write("Results_ships_bought.csv", ships_bought)
+CSV.write("Results_stock.csv", stock)
+CSV.write("Results_fuel_use.csv", fuel_use)
 
 
 #=
