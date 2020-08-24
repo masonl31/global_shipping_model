@@ -21,10 +21,10 @@ fuel_f_y = DataFrame(transpose(fuel_fueltype_year))
 fuel_s_y = DataFrame(transpose(fuel_ship_year))
 
 #adds headers
-rename!(ships_bought, Ships)
-rename!(stock, Ships)
+rename!(ships_bought, ships)
+rename!(stock, ships)
 rename!(fuel_f_y, fuels)
-rename!(fuel_s_y, Ships)
+rename!(fuel_s_y, ships)
 
 # write DataFrame out to CSV file
 CSV.write("Results_ships_bought.csv", ships_bought)
