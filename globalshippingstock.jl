@@ -5,7 +5,7 @@ using DataFrames
 
 
 #Data
-ship_types = ["oiltanker" "bulkcarrier" "generalcargo" "containership" "other"]
+ship_types = ["tanker" "bulkcarrier" "generalcargo" "containership" "other"]
 T = length(ship_types)
 
 ships = ["MDO_D", "MDO_C", "MDO_T", "LNG_D", "LNG_C", "LNG_T", "AMM_D", "AMM_C", "AMM_T", "MET_D", "MET_C", "MET_T"]
