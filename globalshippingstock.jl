@@ -23,10 +23,9 @@ include("ship_demands.jl")
 include("existing_fleet.jl")
 include("ship_inv.jl")
 include("ship_var.jl")
-include("ship_fuel.jl")
 include("ship_eff.jl")
 include("ship_type_relation.jl")
-include("maxdemand.jl")
+include("averagetransportwork.jl")
 include("ship_lifetime.jl")
 
 
@@ -53,7 +52,7 @@ Shipping_stock = Model(with_optimizer(Gurobi.Optimizer,MIPGap=0.0,TimeLimit=300)
 @constraint(Shipping_stock, [t=1:T, y=1:Y], sum(q[s,y]*ship_type_relation[t,s]*maxdemandpervessel[s] for s=1:S) >= Ship_Demands[y,t])
 
 #fuel must be consumed by current ship stock
-@constraint(Shipping_stock, [s=1:S, y=1:Y], sum(z[f,s,y]*ship_eff[f,s] for f=1:F) >= q[s,y]*maxdemandpervessel[s])
+@constraint(Shipping_stock, [s=1:S, y=1:Y], sum(z[f,s,y]*ship_eff[f,s] for f=1:F) >= q[s,y]*average_transport_work[s])
 
 #emission constraint
 @constraint(Shipping_stock, [y=1:Y], sum(sum(z[f,s,y] for s=1:S) * fuel_emissions[f] for f=1:F) <= emission_limit[y])
