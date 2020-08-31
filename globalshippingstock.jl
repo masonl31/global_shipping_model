@@ -1,8 +1,10 @@
 using JuMP
+#using GLPK
 using Gurobi
 using CSV
 using DataFrames
-
+using Plots
+#using StatsPlots
 
 #Data
 ship_types = ["tanker" "bulkcarrier" "generalcargo" "containership" "other"]
@@ -35,7 +37,7 @@ include("fuel_cost.jl")
 
 
 #Model
-Shipping_stock = Model(with_optimizer(Gurobi.Optimizer,MIPGap=0.0,TimeLimit=300))
+Shipping_stock = Model(Gurobi.Optimizer)
 
 #variables
 @variable(Shipping_stock, x[1:S,1:Y] >= 0, Int) #number of ships bought per year
