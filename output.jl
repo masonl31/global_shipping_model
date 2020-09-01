@@ -1,9 +1,4 @@
 
-
-
-Results_folder = joinpath("","results")
-
-
 fuel_fueltype_year=zeros(F,Y)
 for f=1:F
 	for y=1:Y
@@ -32,6 +27,7 @@ rename!(stock, ships)
 rename!(fuel_f_y, fuels)
 rename!(fuel_s_y, ships)
 
+Results_folder = joinpath("","results")
 # write DataFrame out to CSV file
 CSV.write(joinpath(Results_folder,"Results_ships_bought.csv"), ships_bought)
 CSV.write(joinpath(Results_folder,"Results_stock.csv"), stock)

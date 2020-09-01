@@ -48,7 +48,9 @@ Shipping_stock = Model(Gurobi.Optimizer)
 @objective(Shipping_stock, Min, sum(ship_inv[y,s]*x[s,y] for s=1:S, y=1:Y)+ sum(sum(z[f,s,y] for s=1:S)*fuel_cost[f,y] for f=1:F, y=1:Y))
 
 #ship stock in each year for each ship
-@constraint(Shipping_stock, [s=1:S, y=1:Y], x[s,y] + preexisting_fleet[y,s] + (y>1 ? q[s,y-1] : 0) - (y>lifetime[s] ? x[s,y-lifetime[s]] : 0) == q[s,y])
+#@constraint(Shipping_stock, [s=1:S, y=1:Y], x[s,y] + preexisting_fleet[y,s] + (y>1 ? q[s,y-1] : 0) - (y>lifetime[s] ? x[s,y-lifetime[s]] : 0) == q[s,y])
+@constraint(Shipping_stock, [s=1:S, y=1:Y], x[s,y] + preexisting_fleet[y,s] + (y>1 ? sum(x[s,y] for y=1:y-1) : 0) - (y>lifetime[s] ? sum(x[s,y] for y=1:y-lifetime[s]) : 0) == q[s,y])
+
 
 #number of ships needed in a given year per type
 @constraint(Shipping_stock, [t=1:T, y=1:Y], sum(q[s,y]*ship_type_relation[t,s]*average_transport_work[s] for s=1:S) >= Ship_Demands[y,t])
