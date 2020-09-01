@@ -3,18 +3,13 @@ using JuMP
 using Gurobi
 using CSV
 using DataFrames
-using Plots
+#using Plots
 #using StatsPlots
 
 #Data
-ship_types = ["tanker" "bulkcarrier" "generalcargo" "containership" "other"]
-T = length(ship_types)
-
-ships = ["MDO_D", "MDO_C", "MDO_T", "LNG_D", "LNG_C", "LNG_T", "AMM_D", "AMM_C", "AMM_T", "MET_D", "MET_C", "MET_T"]
-S = length(ships)
-
-fuels = ["MFO", "Ammonia", "Methanol"]
-F=length(fuels)
+include("ship_types.jl")
+include("fuels.jl")
+include("ships.jl")
 
 
 include("Years.jl")
