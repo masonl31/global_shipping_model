@@ -19,7 +19,7 @@ include("ship_demands.jl")
 
 include("existing_fleet.jl")
 include("ship_inv.jl")
-include("ship_var.jl")
+#include("ship_var.jl")
 include("ship_eff.jl")
 include("ship_type_relation.jl")
 include("averagetransportwork.jl")
@@ -29,6 +29,11 @@ include("ship_lifetime.jl")
 include("fuel_emissions.jl")
 include("fuel_cost.jl")
 
+#constants
+onemega = 1E6
+onegiga = 1E9
+onetera = 1E12
+dummy = 5E2
 
 
 #Model
@@ -40,7 +45,7 @@ Shipping_stock = Model(Gurobi.Optimizer)
 @variable(Shipping_stock, z[1:F,1:S,1:Y] >= 0) #amount of fuel per fueltype, ship, and year
 
 #removed variable costs!
-@objective(Shipping_stock, Min, sum(ship_inv[y,s]*x[s,y] for s=1:S, y=1:Y)+ sum(sum(z[f,s,y] for s=1:S)*fuel_cost[f,y] for f=1:F, y=1:Y))
+@objective(Shipping_stock, Min, sum(ship_inv[y,s]*x[s,y] for s=1:S, y=1:Y) + sum(sum(z[f,s,y] for s=1:S)*fuel_cost[f,y] for f=1:F, y=1:Y))
 
 #ship stock in each year for each ship
 @constraint(Shipping_stock, [s=1:S, y=1:Y], x[s,y] + preexisting_fleet[y,s] + (y>1 ? q[s,y-1] : 0) - (y>lifetime[s] ? x[s,y-lifetime[s]] : 0) == q[s,y])
@@ -49,10 +54,10 @@ Shipping_stock = Model(Gurobi.Optimizer)
 @constraint(Shipping_stock, [t=1:T, y=1:Y], sum(q[s,y]*ship_type_relation[t,s]*average_transport_work[s] for s=1:S) >= Ship_Demands[y,t])
 
 #fuel must be consumed by current ship stock
-@constraint(Shipping_stock, [s=1:S, y=1:Y], sum(z[f,s,y]*ship_eff[f,s] for f=1:F) >= q[s,y]*average_transport_work[s])
+@constraint(Shipping_stock, [s=1:S, y=1:Y], sum(z[f,s,y]*ship_eff[f,s] for f=1:F) >= q[s,y]*average_transport_work[s] * onegiga)
 
 #emission constraint
-@constraint(Shipping_stock, [y=1:Y], sum(sum(z[f,s,y] for s=1:S) * fuel_emissions[f] for f=1:F) <= emission_limit[y])
+@constraint(Shipping_stock, [y=1:Y], sum(sum(z[f,s,y] for s=1:S) * fuel_emissions[f] for f=1:F) <= emission_limit[y] * onetera * dummy)
 
 
 
