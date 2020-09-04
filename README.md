@@ -2,7 +2,7 @@
 
 This model uses historical data and forecasts to predict the fuel mix of the global shipping sector.
 
-Maritime policy
+## Maritime policy
   emission limits
   sulfur limits
     scrubbers
@@ -10,5 +10,5 @@ Maritime policy
   speed reductions
   
 
-Time horizon
+## Time horizon
   add details to 2100
