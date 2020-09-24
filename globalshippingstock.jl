@@ -1,6 +1,6 @@
 using JuMP
-#using GLPK
-using Gurobi
+using CPLEX
+
 using CSV
 using DataFrames
 using Plots
@@ -38,8 +38,7 @@ dummy = 5E2
 
 
 #Model
-Shipping_stock = Model(Gurobi.Optimizer)
-#Shipping_stock = Model(with_optimizer(Gurobi.Optimizer,MIPGap=0.0,TimeLimit=300))
+Shipping_stock = Model(CPLEX.Optimizer)
 
 #variables
 @variable(Shipping_stock, x[1:S,1:Y] >= 0, Int) #number of ships bought per year
