@@ -1,6 +1,4 @@
 
-
-
 Results_folder = joinpath("","results")
 
 
