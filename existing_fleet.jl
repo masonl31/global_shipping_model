@@ -1,3 +1,65 @@
+
+#https://afi.dnvgl.com/Statistics
+DNVGL_shiptypes = ["Bulk carrier" "Container ships" "Crude oil tankers" "Oil/Chemical tankers" "Cruise ships" "Ro-Ro cargo ships" "Gas tankers" "general cargo ships" "RoPax" "Car carriers" "Car/passenger ferries" "Other activities" "Fishing vessels" "Other offshore vessels" "Offshore supply ships" "Tugs"]
+DNVGL_altfuels = ["Scrubber" "LNG" "Battery" "LNG ready" "Methanol" "LPG" "Hydrogen"]
+#=
+1 - "tanker"
+2 - "bulk carrier"
+3 - "generalcargo"
+4 - "containership"
+5 - "other"
+=#
+#this table comes directly from the above link from DNV GL
+#represents the number of ships in operation and on order
+#first column is type of ship and the other columns are the alternative fuels
+DNVGL_total =
+[
+2   1568    19  6   42  0   0   0
+4   938     47  2   45  0   0   0
+1   621     55  6   8   0   0   0
+5   571     49  5   29  21  0   0
+5   220     32  18  0   0   0   0
+3   195     13  16  8   0   0   0
+1   115     7   0   0   2   34  0
+3   103     15  3   0   0   0   0
+3   93      22  3   12  1   0   0
+3   60      10  0   0   0   0   0
+5   12      53  194 4   0   0   2
+5   6       20  89  1   0   0   0
+5   1       3   18  0   0   0   0
+5   1       0   13  0   0   0   0
+5   0       37  59  0   0   0   0
+5   0       18  16  0   0   0   1
+]
+
+DNVGL_total_sort = zeros(5,7)
+for t=1:5
+        for a=1:7
+                DNVGL_total_sort[t,a] = sum(DNVGL_total[i,a+1] for i=1:16 if DNVGL_total[1:16,1] == t)
+        end
+end
+
+
+
+
+DNVGL_scrubberships =
+[
+11
+20
+39
+107
+243
+313
+388
+732
+3156
+4341
+4489
+4502
+4504
+]
+
+
 preexisting_fleet =
 [
 10603	8223	21085	4963	38352	2	4	1	2	2	4	1	3	1	15	0	0	1	0	21	0	0	0	0	0	0	0	0	0	0	0	0	0	0	0
