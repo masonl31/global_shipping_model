@@ -1,10 +1,10 @@
 using JuMP
-using CPLEX
+
+
+using Cbc
 
 using CSV
 using DataFrames
-using Plots
-using StatsPlots
 
 #Data
 include("ship_types.jl")
@@ -38,7 +38,8 @@ dummy = 5E2
 
 
 #Model
-Shipping_stock = Model(CPLEX.Optimizer)
+Shipping_stock = Model(Cbc.Optimizer)
+#Shipping_stock = Model(Gurobi.Optimizer)
 
 #variables
 @variable(Shipping_stock, x[1:S,1:Y] >= 0, Int) #number of ships bought per year
