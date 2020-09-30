@@ -37,3 +37,5 @@ CSV.write(joinpath(Results_folder,"Results_fuels_s_y_PJ.csv"), fuel_s_y)
 
 objVal = objective_value(Shipping_stock)
 println("Objective value:", objVal)
+
+writedlm( "existing_fleet.csv",  test, ',')
