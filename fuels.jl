@@ -6,7 +6,8 @@ fuels = [
 "MET"
 "HYB"
 "HYG"
-"AMM"
+"NHG"
+"NHB"
 "ELC"
 ]
 F=length(fuels)

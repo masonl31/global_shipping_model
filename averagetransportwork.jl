@@ -1,4 +1,4 @@
-
+#gigaton-NM
 average_transport_work = zeros(Y,S)
 
 work_t = 5.6
@@ -12,4 +12,4 @@ for y=1:Y
     for s = 1:S
         average_transport_work[y,s] = work_sum_sum[s]
     end
-end 
+end
