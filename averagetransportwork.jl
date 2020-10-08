@@ -1,11 +1,11 @@
 #gigaton-NM
 average_transport_work = zeros(Y,S)
 
-work_t = 5.6
-work_b = 13
-work_g = 0.9
-work_c = 7.4
-work_o = 0.6
+work_t = 8.62
+work_b = 5.21
+work_g = 0.37
+work_c = 2.03
+work_o = 0.82
 work_sum = [work_t work_b work_g work_c work_o]
 work_sum_sum = [work_sum work_sum work_sum work_sum work_sum work_sum work_sum]
 for y=1:Y

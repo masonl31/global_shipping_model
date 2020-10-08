@@ -27,6 +27,8 @@ include("ship_lifetime.jl")
 
 include("fuel_emissions.jl")
 include("fuel_cost.jl")
+include("fuel_tax.jl")
+
 
 #constants
 onemega = 1E6
@@ -44,7 +46,7 @@ Shipping_stock = Model(Gurobi.Optimizer)
 @variable(Shipping_stock, z[1:F,1:S,1:Y] >= 0) #amount of fuel per fueltype, ship, and year [PJ]
 
 
-@objective(Shipping_stock, Min, sum(ship_inv[y,s]*x[s,y] for s=1:S, y=1:Y)*onemega + sum((sum(z[f,s,y] for s=1:S)*onemega)*fuel_cost[f,y] for f=1:F, y=1:Y))
+@objective(Shipping_stock, Min, sum(ship_inv[y,s]*x[s,y] for s=1:S, y=1:Y)*onemega + sum((sum(z[f,s,y] for s=1:S)*onemega)*(fuel_cost[f,y]+fuel_tax[f,y]) for f=1:F, y=1:Y))
 
 #ship stock in each year for each ship
 @constraint(Shipping_stock, [s=1:S, y=1:Y], x[s,y] + preexisting_fleet[y,s] + (y>1 ? sum(x[s,y] for y=1:y-1) : 0) - (y>lifetime[s] ? sum(x[s,y] for y=1:y-lifetime[s]) : 0) == q[s,y])
