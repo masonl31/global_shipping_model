@@ -33,7 +33,7 @@ onemega = 1E6
 onegiga = 1E9
 onetera = 1E12
 megatogiga = 1E9
-dummy = 5E2
+dummy = 3
 
 
 #Model
@@ -44,8 +44,8 @@ Shipping_stock = Model(Gurobi.Optimizer)
 @variable(Shipping_stock, q[1:S,1:Y] >= 0, Int) #ship stock at end of year Y
 @variable(Shipping_stock, z[1:F,1:S,1:Y] >= 0) #amount of fuel per fueltype, ship, and year
 
-#removed variable costs!
-@objective(Shipping_stock, Min, sum(ship_inv[y,s]*x[s,y] for s=1:S, y=1:Y) + sum(sum(z[f,s,y] for s=1:S)*fuel_cost[f,y] for f=1:F, y=1:Y))
+
+@objective(Shipping_stock, Min, sum(ship_inv[y,s]*x[s,y] for s=1:S, y=1:Y)*onemega + sum(sum(z[f,s,y] for s=1:S)*fuel_cost[f,y] for f=1:F, y=1:Y))
 
 #ship stock in each year for each ship
 @constraint(Shipping_stock, [s=1:S, y=1:Y], x[s,y] + preexisting_fleet[y,s] + (y>1 ? sum(x[s,y] for y=1:y-1) : 0) - (y>lifetime[s] ? sum(x[s,y] for y=1:y-lifetime[s]) : 0) == q[s,y])
@@ -57,7 +57,7 @@ Shipping_stock = Model(Gurobi.Optimizer)
 @constraint(Shipping_stock, [s=1:S, y=1:Y], sum(z[f,s,y]*ship_eff[f,s] for f=1:F) >= q[s,y]*average_transport_work[y,s] * onegiga)
 
 #emission constraint
-@constraint(Shipping_stock, [y=1:Y], sum(sum(z[f,s,y] for s=1:S) * fuel_emissions[f] for f=1:F) <= emission_limit[y] * onetera * dummy)
+#@constraint(Shipping_stock, [y=1:Y], sum(sum(z[f,s,y] for s=1:S) * fuel_emissions[f] for f=1:F) <= emission_limit[y] * onetera * dummy)
 
 
 
