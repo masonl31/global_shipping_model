@@ -1,5 +1,5 @@
-
-demand1 = [1400 12500 11500 8500 5500]
+#gigatonne-NM
+demand1 = [14000 12500 11500 8500 5500]
 dummy=zeros(Y-1,T)
 Ship_Demands = vcat(demand1, dummy)
 growth1 = [1.03 1.043 1.043 1.024 1.024] #2010-2018 DNV GL
@@ -15,5 +15,11 @@ for i=1:T
         end
         for j=21:Y
                 Ship_Demands[j,i]=growth3[i]*Ship_Demands[j-1,i]
+        end
+end
+
+for j=1:Y
+        for i=1:T
+                Ship_Demands[j,i]=Ship_Demands[j,i]*NMtokm
         end
 end

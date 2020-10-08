@@ -33,8 +33,7 @@ onemega = 1E6
 onegiga = 1E9
 onetera = 1E12
 megatogiga = 1E9
-dummy = 3
-
+NMtokm = 1.852
 
 #Model
 Shipping_stock = Model(Gurobi.Optimizer)
@@ -42,10 +41,10 @@ Shipping_stock = Model(Gurobi.Optimizer)
 #variables
 @variable(Shipping_stock, x[1:S,1:Y] >= 0, Int) #number of ships bought per year [# of ships]
 @variable(Shipping_stock, q[1:S,1:Y] >= 0, Int) #ship stock at end of year Y [# of ships]
-@variable(Shipping_stock, z[1:F,1:S,1:Y] >= 0) #amount of fuel per fueltype, ship, and year [MJ]
+@variable(Shipping_stock, z[1:F,1:S,1:Y] >= 0) #amount of fuel per fueltype, ship, and year [PJ]
 
 
-@objective(Shipping_stock, Min, sum(ship_inv[y,s]*x[s,y] for s=1:S, y=1:Y)*onemega + sum(sum(z[f,s,y] for s=1:S)*fuel_cost[f,y] for f=1:F, y=1:Y))
+@objective(Shipping_stock, Min, sum(ship_inv[y,s]*x[s,y] for s=1:S, y=1:Y)*onemega + sum((sum(z[f,s,y] for s=1:S)*onemega)*fuel_cost[f,y] for f=1:F, y=1:Y))
 
 #ship stock in each year for each ship
 @constraint(Shipping_stock, [s=1:S, y=1:Y], x[s,y] + preexisting_fleet[y,s] + (y>1 ? sum(x[s,y] for y=1:y-1) : 0) - (y>lifetime[s] ? sum(x[s,y] for y=1:y-lifetime[s]) : 0) == q[s,y])
@@ -56,8 +55,8 @@ Shipping_stock = Model(Gurobi.Optimizer)
 #fuel must be consumed by current ship stock
 @constraint(Shipping_stock, [s=1:S, y=1:Y], sum(z[f,s,y]*ship_eff[f,s] for f=1:F) >= q[s,y]*average_transport_work[y,s])
 
-#emission constraint
-#@constraint(Shipping_stock, [y=1:Y], sum(sum(z[f,s,y] for s=1:S) * fuel_emissions[f] for f=1:F) <= emission_limit[y] * onetera * dummy)
+#emission constraint for year 2050 and onwards
+@constraint(Shipping_stock, [y=2050-2007+1:Y], sum(sum(z[f,s,y] for s=1:S) * fuel_emissions[f] for f=1:F) <= emission_limit[2050-2007+1] * onemega)
 
 
 

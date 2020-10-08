@@ -4,14 +4,14 @@ Results_folder = joinpath("","results")
 fuel_fueltype_year=zeros(F,Y)
 for f=1:F
 	for y=1:Y
-		fuel_fueltype_year[f,y] = sum(JuMP.value.(z[f,s,y])/megatogiga for s=1:S)
+		fuel_fueltype_year[f,y] = sum(JuMP.value.(z[f,s,y]) for s=1:S)
 	end
 end
 
 fuel_ship_year=zeros(S,Y)
 for s=1:S
 	for y=1:Y
-		fuel_ship_year[s,y] = sum(JuMP.value.(z[f,s,y])/megatogiga for f=1:F)
+		fuel_ship_year[s,y] = sum(JuMP.value.(z[f,s,y]) for f=1:F)
 	end
 end
 
@@ -39,3 +39,4 @@ objVal = objective_value(Shipping_stock)
 println("Objective value:", objVal)
 
 writedlm( "existing_fleet.csv",  preexisting_fleet, ',')
+writedlm( "averagetransport.csv",  average_transport_work, ',')
