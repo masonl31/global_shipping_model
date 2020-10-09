@@ -40,3 +40,4 @@ println("Objective value:", objVal)
 
 writedlm( "output_data\\existing_fleet.csv",  preexisting_fleet, ',')
 writedlm( "output_data\\averagetransport.csv",  average_transport_work, ',')
+writedlm( "output_data\\demands.csv",  Ship_Demands, ',')

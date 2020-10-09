@@ -238,7 +238,7 @@ end
 
 
 ###############################################################################
-#existing MFO ship calculations
+#existing MFO ship calculations assuming average lifetime of 15 years left and all gone in 20 years
 existing_fleet_MFO = zeros(Y,5)
 for y=1:size(IMO_total,1)
     for s=1:5
@@ -246,9 +246,14 @@ for y=1:size(IMO_total,1)
     end
 end
 
-
+for y=size(IMO_total,1)+1:size(IMO_total,1)+15
+    for s=1:5
+        existing_fleet_MFO[y,s] = existing_fleet_MFO[size(IMO_total,1),s]
+    end
+end
 
 
 
 
 preexisting_fleet = hcat(existing_fleet_MFO, existing_fleet_scrubber, existing_fleet_lng, existing_fleet_elc, existing_fleet_met, existing_fleet_lpg, existing_fleet_hyd)
+preexisting_fleet = zeros(Y,S)
