@@ -38,19 +38,24 @@ megatogiga = 1E9
 NMtokm = 1.852
 petatogiga = 1E6
 
+decommission_value = 0.5
+
 #Model
 Shipping_stock = Model(Gurobi.Optimizer)
 
 #variables
 @variable(Shipping_stock, x[1:S,1:Y] >= 0, Int) #number of ships bought per year [# of ships]
-@variable(Shipping_stock, q[1:S,1:Y] >= 0, Int) #ship stock at end of year Y [# of ships]
+@variable(Shipping_stock, q[1:S,1:Y] >= 0, Int) #ship stock at year Y [# of ships]
 @variable(Shipping_stock, z[1:F,1:S,1:Y] >= 0) #amount of fuel per fueltype, ship, and year [PJ]
+@variable(Shipping_stock, d[1:S,1:Y] >= 0, Int) #ship stock to decomission [# of ships]
 
-
-@objective(Shipping_stock, Min, sum(ship_inv[y,s]*x[s,y] for s=1:S, y=1:Y)*onemega + sum((sum(z[f,s,y] for s=1:S)*petatogiga)*(fuel_cost[f,y]+fuel_tax[f,y]) for f=1:F, y=1:Y))
-
+@objective(Shipping_stock, Min, sum(ship_inv[y,s]*x[s,y] for s=1:S, y=1:Y)*onemega
+                              + sum((sum(z[f,s,y] for s=1:S)*petatogiga)*(fuel_cost[f,y]+fuel_tax[f,y]) for f=1:F, y=1:Y)
+#                              - sum(d[s,y]*ship_inv[y,s]*decommission_value for s=1:S, y=1:Y)   not working yet
+           )
+           
 #ship stock in each year for each ship
-@constraint(Shipping_stock, [s=1:S, y=1:Y], x[s,y] + preexisting_fleet[y,s] + (y>1 ? sum(x[s,y] for y=1:y-1) : 0) - (y>lifetime[s] ? sum(x[s,y] for y=1:y-lifetime[s]) : 0) == q[s,y])
+@constraint(Shipping_stock, [s=1:S, y=1:Y], x[s,y] + preexisting_fleet[y,s] + (y>1 ? sum(x[s,y] for y=1:y-1) : 0) - (y>lifetime[s] ? sum(x[s,y] for y=1:y-lifetime[s]) : 0) - d[s,y] == q[s,y])
 
 #number of ships needed in a given year per type
 #@constraint(Shipping_stock, [t=1:T, y=1:Y], sum(q[s,y]*ship_type_relation[t,s]*average_transport_work[s] for s=1:S) >= Ship_Demands[y,t])

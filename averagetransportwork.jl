@@ -10,6 +10,6 @@ work_sum = [work_t work_b work_g work_c work_o]
 work_sum_sum = [work_sum work_sum work_sum work_sum work_sum work_sum work_sum]
 for y=1:Y
     for s = 1:S
-        average_transport_work[y,s] = work_sum_sum[s]
+        average_transport_work[y,s] = work_sum_sum[s]*0.5
     end
 end

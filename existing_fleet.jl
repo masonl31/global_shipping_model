@@ -256,4 +256,4 @@ end
 
 
 preexisting_fleet = hcat(existing_fleet_MFO, existing_fleet_scrubber, existing_fleet_lng, existing_fleet_elc, existing_fleet_met, existing_fleet_lpg, existing_fleet_hyd)
-preexisting_fleet = zeros(Y,S)
+#preexisting_fleet = zeros(Y,S)

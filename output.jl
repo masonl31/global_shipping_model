@@ -20,18 +20,21 @@ end
 #creates dataframes
 ships_bought = DataFrame(transpose(JuMP.value.(x)))
 stock = DataFrame(transpose(JuMP.value.(q)))
+decommission = DataFrame(transpose(JuMP.value.(d)))
 fuel_f_y = DataFrame(transpose(fuel_fueltype_year))
 fuel_s_y = DataFrame(transpose(fuel_ship_year))
 
 #adds headers
 rename!(ships_bought, ships)
 rename!(stock, ships)
+rename!(decommission, ships)
 rename!(fuel_f_y, fuels)
 rename!(fuel_s_y, ships)
 
 # write DataFrame out to CSV file
 CSV.write(joinpath(Results_folder,"Results_ships_bought.csv"), ships_bought)
 CSV.write(joinpath(Results_folder,"Results_stock.csv"), stock)
+CSV.write(joinpath(Results_folder,"Results_decommission.csv"), decommission)
 CSV.write(joinpath(Results_folder,"Results_fuels_f_y_PJ.csv"), fuel_f_y)
 CSV.write(joinpath(Results_folder,"Results_fuels_s_y_PJ.csv"), fuel_s_y)
 
